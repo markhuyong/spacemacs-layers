@@ -246,6 +246,8 @@
   (setq org-agenda-dir "~/Dropbox/org")
   (setq org-agenda-file-gtd (expand-file-name "gtd.org" org-agenda-dir))
   (setq org-agenda-file-note (expand-file-name "note.org" org-agenda-dir))
+  (setq org-agenda-file-journal (expand-file-name "journal.org" org-agenda-dir))
+  (setq org-agenda-file-snippets (expand-file-name "snippets.org" org-agenda-dir))
   (setq org-agenda-file-gtd-archive (expand-file-name "gtd_archive.org" org-agenda-dir))
   (setq org-agenda-files `(,org-agenda-file-gtd ,org-agenda-file-gtd-archive ,org-agenda-file-note))
 
@@ -255,39 +257,50 @@
           (sequence "|" "CANCELLED(c)" "DEFERRED(f)")))
 
   (setq org-tag-alist `(
-                ("WORK"     . ?w)
-                ("MEETING"  . ?m)
-                ("COMPUTER" . ?c)
-                ("READING"  . ?r)
-                ("WRITING"  . ?t)
-                ("BLOG"     . ?b)
-                ("PROJECT"  . ?p)
-                ("HOME"     . ?h)
-                ("ERRAND"   . ?e)))
+                        ("WORK"     . ?w)
+                        ("MEETING"  . ?m)
+                        ("COMPUTER" . ?c)
+                        ("READING"  . ?r)
+                        ("WRITING"  . ?t)
+                        ("BLOG"     . ?b)
+                        ("PROJECT"  . ?p)
+                        ("HOME"     . ?h)
+                        ("ERRAND"   . ?e)))
 
   (setq org-refile-targets
         '(("gtd.org" :maxlevel . 1)))
 
   (setq org-log-into-drawer t)
-
+  ;; the %i would copy the selected text into the template
+  ;;http://www.howardism.org/Technical/Emacs/journaling-org.html
+  ;;add multi-file journal
   (setq org-capture-templates
         '(("t" "Todo" entry (file+headline org-agenda-file-gtd "Tasks")
-           "* TODO %?\n  %i\n"
+           "* TODO [#B] %?\n  %i\n"
            :empty-lines 1)
           ("i" "Inbox" entry (file+headline org-agenda-file-gtd "Inbox")
            "* DOING %?\n  %i\n"
            :empty-lines 1)
           ("n" "Notes" entry (file+headline org-agenda-file-note "Notes")
-           "* NOTE %?\n  %i\n %U"
+           "* %?\n  %i\n %U"
            :empty-lines 1)
-          ("b" "Blog" entry (file+headline org-agenda-file-gtd "Blog")
-           "* TODO %?\n  %i\n %U"
+          ("b" "Blog" entry (file+headline org-agenda-file-note "Blog")
+           "* TODO [#B] %?\n  %i\n %U"
            :empty-lines 1)
+          ("s" "Code Snippet" entry
+           (file org-agenda-file-snippets)
+           "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC")
           ("p" "Projects" entry (file+headline org-agenda-file-gtd "Projects")
-           "* TODO %?\n  %i\n %U"
+           "* TODO [#A] %?\n  %i\n %U"
+           :empty-lines 1)
+          ("c" "Chrome" entry (file+headline org-agenda-file-note "Notes")
+           "* TODO [#C] %?\n %(org-mac-chrome-get-frontmost-url)\n %i\n %U"
+           :empty-lines 1)
+          ("l" "links" entry (file+headline org-agenda-file-note "Notes")
+           "* TODO [#C] %?\n  %i\n %a \n %U"
            :empty-lines 1)
           ("j" "Journal Entry"
-           entry (file+datetree "~/org/journal.org")
+           entry (file+datetree org-agenda-file-journal)
            "* %?"
            :empty-lines 1)))
 
@@ -337,7 +350,7 @@
             (org-agenda-compact-blocks t)
             (org-agenda-remove-tags t)
             (ps-number-of-columns 2)
-             (ps-landscape-mode t))
+            (ps-landscape-mode t))
            ("~/agenda.ps"))
           ))
 

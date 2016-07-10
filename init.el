@@ -167,6 +167,7 @@
   (global-set-key (kbd "C-+") 'text-scale-increase)
   (global-set-key (kbd "C--") 'text-scale-decrease)
 
+  (setq create-lockfiles nil)
   (setq configuration-layer--elpa-archives
         '(("melpai-cn" . "http://elpa.zilongshanren.com/melpa/")
           ("org-cn"   . "http://elpa.zilongshanren.com/org/")
@@ -225,16 +226,16 @@
   ;;(add-hook 'shell-mode-hook 'bash-doc-hook)
 
   ;;(setq helm-dash-browser-func 'browse-url)
- ;; (setq browse-url-browser-function 'browse-url-w3)
+  ;; (setq browse-url-browser-function 'browse-url-w3)
   ;;(setq helm-dash-docsets-path "~/.docsets")
 
   ;;(defun eww-split (url)
-   ;; (interactive)
-   ;; (select-window (split-window-below))
-   ;; (eww url))
+  ;; (interactive)
+  ;; (select-window (split-window-below))
+  ;; (eww url))
   ;;(setq helm-dash-browser-func 'eww-split)
   ;;(setq helm-dash-common-docsets '(helm-dash-installed-docsets)) 
-
+  (setq ns-pop-up-frames nil)
 
   (setq-default
 

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ln -s `pwd` ~/.spacemacs.d
+ln -Tsf `pwd` ~/.spacemacs.d
