@@ -14,17 +14,19 @@
       auto-completion-tab-key-behavior 'cycle
       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets/"
       :disabled-for org erc)
-     ;;bibtex
+     ;;bibte
+     gtags
      (c-c++ :variables c-c++-enable-clang-support t)
      pdf-tools
      clojure
      command-log
      csharp
      
-     dash
+     ;;dash
      ;;https://github.com/syl20bnr/spacemacs/issues/5694
      (dash :variables dash-helm-dash-docset-path "~/.docsets")
-     
+     puppet
+     colors
      django
      elixir
      elfeed
@@ -39,6 +41,9 @@
      git
      github
      haskell
+     ;; (haskell :variables
+     ;;          haskell-process-type 'stack-ghci
+     ;;          haskell-enable-ghc-mod-support nil)
      html
      (ibuffer :variables ibuffer-group-buffers-by nil)
      ipython-notebook
@@ -48,23 +53,24 @@
      markdown
      org
      (python :variables python-test-runner 'pytest)
-     ranger
+     ;; ranger
      react
      ruby
-     rust
+     ;;rust
+     go
      scala
      (scala :variables scala-enable-eldoc-mode t)
      semantic
      (shell :variables shell-default-shell 'eshell)
      shell-scripts
      (spell-checking :variables spell-checking-enable-by-default nil)
-     spotify
+     ;;spotify
      (syntax-checking :variables syntax-checking-enable-by-default nil)
      typography
      (version-control :variables version-control-diff-tool 'diff-hl)
      vimscript
      yaml
-
+     evernote
      ;; Non-contrib layers
      encoding
      evil-little-word
@@ -123,7 +129,7 @@
    dotspacemacs-colorize-cursor-according-to-state t
    dotspacemacs-default-font
    `("Source Code Pro"
-     :size ,(if (spacemacs/system-is-mswindows) 16 13)
+     :size 12
      :weight demibold :width normal :powerline-scale 1.15)
    dotspacemacs-leader-key "SPC"
    dotspacemacs-emacs-leader-key "M-m"
@@ -153,7 +159,7 @@
    dotspacemacs-show-transient-state-title t
    dotspacemacs-show-transient-state-color-guide nil
    dotspacemacs-mode-line-unicode-symbols nil
-   dotspacemacs-smooth-scrolling nil
+   dotspacemacs-smooth-scrolling t
    dotspacemacs-line-numbers nil
    dotspacemacs-smartparens-strict-mode nil
    dotspacemacs-smart-closing-parenthesis nil
@@ -169,24 +175,30 @@
 
   (setq create-lockfiles nil)
   (setq configuration-layer--elpa-archives
-        '(("melpai-cn" . "http://elpa.zilongshanren.com/melpa/")
-          ("org-cn"   . "http://elpa.zilongshanren.com/org/")
-          ("gnu-cn"   . "http://elpa.zilongshanren.com/gnu/")))
+		'(("melpai-cn" . "http://elpa.zilongshanren.com/melpa/")
+		  ("org-cn"   . "http://elpa.zilongshanren.com/org/")
+		  ("gnu-cn"   . "http://elpa.zilongshanren.com/gnu/")
+		  ;;   ("gnu" . "http://elpa.gnu.org/packages/")
+		  ;;   ("org" . "http://orgmode.org/elpa/")
+		  ;;   ("melpa" . "http://melpa.org/packages/")
+		  ;;   ("melpa-stable" . "http://stable.melpa.org/packages/")
+		  ))
   
   ;; https://github.com/syl20bnr/spacemacs/issues/2705
   ;; (setq tramp-mode nil)
   (setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
 
   ;; ss proxy. But it will cause anacond-mode failed.
-  (setq socks-server '("Default server" "127.0.0.1" 1080 5))
+  ;;(setq socks-server '("Default server" "127.0.0.1" 1086 5))
   (setq evil-shift-round nil)
   (setq byte-compile-warnings '(not obsolete))
 
   (set-default 'server-socket-dir "~/.emacs.d/server")
+  (require 'server)
   (if (functionp 'window-system)
       (when (and (window-system)
                  (>= emacs-major-version 24))
-        (server-start)))
+        (unless (server-running-p) (server-start))))
   (custom-set-variables
    ;; custom-set-variables was added by Custom.
    ;; If you edit it by hand, you could mess it up, so be careful.
@@ -201,14 +213,21 @@
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
    )
-  
+
+  (setq-default dotspacemacs-configuration-layers
+                '(auto-completion
+                  (haskell :variables haskell-completion-backend 'intero)))
+
+  ;;docView continuous
+  (setq doc-view-continuous t)
+
   ;;(fset 'evil-visual-update-x-selection 'ignore)
 
   ;;helm-dash
   ;;(setq helm-dash-common-docsets '("C"))
   ;;(defvar helm-dash-common-docsets '(helm-dash-installed-docsets))
   ;;(setq dash/dash-helm-dash-docset-path '("/Users/apple/.docsets"))
-  ;;(setq dash/helm-dash-docset-newpath '("/Users/apple/.docsets"))
+  (setq dash/helm-dash-docset-newpath '("/Users/apple/.docsets"))
   
   (defun c-doc-hook ()
     (interactive)
@@ -217,16 +236,22 @@
 
   (defun emacs-doc-hook ()
     (interactive)
-    (setq-local helm-dash-docsets '("Emacs_Lisp")))
+    (setq-local helm-dash-docsets '("Emacs Lisp")))
   (add-hook 'emacs-lisp-mode-hook 'emacs-doc-hook)
+
+  (defun helm-dash-js ()
+    (interactive)
+    (setq-local helm-dash-docsets '("JavaScript" "BackboneJS" "jQuery")))
+  (add-hook 'js2-mode-hook 'helm-dash-js)
 
   (defun bash-doc-hook ()
     (interactive)
     (setq-local helm-dash-docsets '("Bash")))
-  ;;(add-hook 'shell-mode-hook 'bash-doc-hook)
+  (add-hook 'shell-mode-hook 'bash-doc-hook)
 
-  ;;(setq helm-dash-browser-func 'browse-url)
-  ;; (setq browse-url-browser-function 'browse-url-w3)
+  ;;fixme: doesn't work here?
+  ;;(setq browse-url-browser-function 'browse-url-default-macosx-browser)
+  ;;(setq helm-dash-browser-func 'browse-url-default-macosx-browser)
   ;;(setq helm-dash-docsets-path "~/.docsets")
 
   ;;(defun eww-split (url)
@@ -321,6 +346,10 @@
    '("https://www.reddit.com/r/emacs/.rss"
      "http://xkcd.com/rss.xml")
 
+   ;;Ensime
+   (push '("melpa-stable" . "stable.melpa.org/packages/") configuration-layer--elpa-archives)
+   (push '(ensime . "melpa-stable") package-pinned-packages)
+
    ;; IRC
    ;;erc-server-list
    ;;`(("irc.gitter.im" :port "6667" :nick "TheBB" :full-name ,bb/full-name
@@ -372,6 +401,10 @@
   (add-hook 'evil-mc-after-cursors-deleted
             (defun bb/clear-anzu () (interactive) (setq anzu--state nil)))
 
+  ;;helm-dash
+  (with-eval-after-load 'dash
+    (setq helm-dash-browser-func 'browse-url-default-macosx-browser))
+
   ;; Semantic
   (with-eval-after-load 'semantic
     (setq semantic-default-submodes
@@ -415,15 +448,22 @@
   ;; Safe local variables
   (put 'helm-make-build-dir 'safe-local-variable 'stringp)
 
-  (set-face-attribute 'default nil :height 160)
+  ;;(set-face-attribute 'default nil :height 160)
   
-  (toggle-frame-maximized)
+  ;;(toggle-frame-maximized)
 
   ;;eww
   (setq shr-color-visible-luminance-min 70)
-
+  (add-to-list 'exec-path "/usr/local/bin")
   ;; Additional packages
   (add-hook 'cuda-mode-hook (lambda () (run-hooks 'prog-mode-hook)))
+
+  (use-package smooth-scroll
+    :config
+    (smooth-scroll-mode 1)
+    (setq smooth-scroll/vscroll-step-size 3)
+    )
+
   (use-package helm-flycheck
     :defer t
     :init
@@ -485,3 +525,43 @@
 
 (when (file-exists-p "~/local.el")
   (load "~/local.el"))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(custom-enabled-themes (quote (tango-dark)))
+ '(package-selected-packages
+   (quote
+    (evil-unimpaired yapfify yaml-mode xterm-color ws-butler wolfram-mode window-numbering which-key web-mode web-beautify vimrc-mode uuidgen use-package uimage typo typit mmt toc-org thrift tagedit stickyfunc-enhance stan-mode srefactor spacemacs-theme smeargle slim-mode shell-pop scss-mode scad-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-mode rainbow-identifiers rainbow-delimiters qml-mode pyvenv pytest pyenv-mode py-isort puppet-mode pony-mode pip-requirements persp-mode pdf-tools tablist pcre2el paradox pacmacs orgit org-projectile org-present org-pomodoro alert log4e gntp org-plus-contrib org-page git mustache org-octopress orglue epic org org-mac-link org-download org-bullets open-junk-file omnisharp nginx-mode neotree nameless multi-term move-text mmm-mode matlab-mode markdown-toc markdown-mode magit-gitflow magit-gh-pulls macrostep lua-mode lorem-ipsum livid-mode skewer-mode live-py-mode linum-relative link-hint less-css-mode kivy-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc jade-mode intero info+ indent-guide ido-vertical-mode ibuffer-projectile hydra hy-mode hungry-delete htmlize hlint-refactor hl-todo hl-sexp hindent highlight-parentheses highlight-numbers parent-mode highlight-indentation help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make projectile helm-hoogle helm-gtags helm-gitignore helm-flycheck helm-flx helm-descbinds helm-dash helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets haml-mode google-translate golden-ratio go-eldoc gnuplot gitignore-mode github-search github-clone gh marshal logito pcache ht github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md ggtags geeknote flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck-mix flycheck-haskell flycheck flx-ido flx fish-mode fill-column-indicator fasd fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-snipe evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit magit magit-popup git-commit with-editor evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree ess-smart-equals ess-R-object-popup ess-R-data-view ctable ess julia-mode eshell-z eshell-prompt-extras esh-help erc-yt erc-view-log erc-terminal-notifier erc-social-graph erc-image erc-hl-nicks ensime sbt-mode scala-mode emoji-cheat-sheet-plus emmet-mode elisp-slime-nav elfeed-web simple-httpd elfeed-goodies ace-jump-mode noflet powerline popwin elfeed ein request websocket editorconfig dumb-jump disaster diminish diff-hl defproject define-word dash-at-point dactyl-mode cython-mode cuda-mode csharp-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-shell company-go go-mode company-ghci company-ghc ghc haskell-mode company-emoji company-cabal company-c-headers company-auctex company-anaconda column-enforce-mode color-identifiers-mode coffee-mode cmm-mode cmake-mode clojure-snippets clean-aindent-mode clang-format cider-eval-sexp-fu eval-sexp-fu highlight cider seq spinner queue clojure-mode chruby bundler inf-ruby bind-map bind-key auto-yasnippet yasnippet auto-highlight-symbol auto-dictionary auto-compile packed auctex arduino-mode anaconda-mode pythonic f s alchemist company dash elixir-mode pkg-info epl aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core async ac-ispell auto-complete popup 2048-game quelpa package-build monokai-theme))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(custom-enabled-themes (quote (tango-dark)))
+ '(package-selected-packages
+   (quote
+    (sudoku pug-mode ob-elixir minitest insert-shebang hide-comnt helm-purpose window-purpose imenu-list go-guru command-log-mode evil-unimpaired yapfify yaml-mode xterm-color ws-butler wolfram-mode window-numbering which-key web-mode web-beautify vimrc-mode uuidgen use-package uimage typo typit mmt toc-org thrift tagedit stickyfunc-enhance stan-mode srefactor spacemacs-theme smeargle slim-mode shell-pop scss-mode scad-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-mode rainbow-identifiers rainbow-delimiters qml-mode pyvenv pytest pyenv-mode py-isort puppet-mode pony-mode pip-requirements persp-mode pdf-tools tablist pcre2el paradox pacmacs orgit org-projectile org-present org-pomodoro alert log4e gntp org-plus-contrib org-page git mustache org-octopress orglue epic org org-mac-link org-download org-bullets open-junk-file omnisharp nginx-mode neotree nameless multi-term move-text mmm-mode matlab-mode markdown-toc markdown-mode magit-gitflow magit-gh-pulls macrostep lua-mode lorem-ipsum livid-mode skewer-mode live-py-mode linum-relative link-hint less-css-mode kivy-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc jade-mode intero info+ indent-guide ido-vertical-mode ibuffer-projectile hydra hy-mode hungry-delete htmlize hlint-refactor hl-todo hl-sexp hindent highlight-parentheses highlight-numbers parent-mode highlight-indentation help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make projectile helm-hoogle helm-gtags helm-gitignore helm-flycheck helm-flx helm-descbinds helm-dash helm-css-scss helm-company helm-c-yasnippet helm-ag haskell-snippets haml-mode google-translate golden-ratio go-eldoc gnuplot gitignore-mode github-search github-clone gh marshal logito pcache ht github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md ggtags geeknote flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck-mix flycheck-haskell flycheck flx-ido flx fish-mode fill-column-indicator fasd fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-snipe evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit magit magit-popup git-commit with-editor evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree ess-smart-equals ess-R-object-popup ess-R-data-view ctable ess julia-mode eshell-z eshell-prompt-extras esh-help erc-yt erc-view-log erc-terminal-notifier erc-social-graph erc-image erc-hl-nicks ensime sbt-mode scala-mode emoji-cheat-sheet-plus emmet-mode elisp-slime-nav elfeed-web simple-httpd elfeed-goodies ace-jump-mode noflet powerline popwin elfeed ein request websocket editorconfig dumb-jump disaster diminish diff-hl defproject define-word dash-at-point dactyl-mode cython-mode cuda-mode csharp-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-shell company-go go-mode company-ghci company-ghc ghc haskell-mode company-emoji company-cabal company-c-headers company-auctex company-anaconda column-enforce-mode color-identifiers-mode coffee-mode cmm-mode cmake-mode clojure-snippets clean-aindent-mode clang-format cider-eval-sexp-fu eval-sexp-fu highlight cider seq spinner queue clojure-mode chruby bundler inf-ruby bind-map bind-key auto-yasnippet yasnippet auto-highlight-symbol auto-dictionary auto-compile packed auctex arduino-mode anaconda-mode pythonic f s alchemist company dash elixir-mode pkg-info epl aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core async ac-ispell auto-complete popup 2048-game quelpa package-build monokai-theme))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)

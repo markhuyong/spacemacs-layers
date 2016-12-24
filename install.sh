@@ -1,3 +1,4 @@
 #!/bin/bash
-
-ln -Tsf `pwd` ~/.spacemacs.d
+#H=$HOME/repos/spacemacs
+ln -hsf `pwd` ~/.spacemacs.d
+#ln -hsf `pwd` $H/.spacemacs.d
