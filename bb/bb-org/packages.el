@@ -21,7 +21,6 @@
         org-bullets
         org
         uimage
-        org-octopress
         hl-sexp
         aggressive-indent
         elfeed
@@ -101,103 +100,6 @@
   (use-package org-mac-link
     :defer t
     :init (add-hook'org-mode-hook (lambda () (require 'org-mac-link)))
-    ))
-
-(defun bb-org/init-org-octopress ()
-  (use-package org-octopress
-    :config
-    (progn
-      (setq org-octopress-directory-top       "~/blog/source")
-      (setq org-octopress-directory-posts     "~/blog/source/_posts")
-      (setq org-octopress-directory-org-top   "~/blog/source")
-      (setq org-octopress-directory-org-posts "~/blog/source/_posts")
-      )
-
-    ;; rewrite in org-octopress.el
-    (defun org-octopress--summary-table (contents keymap)
-      (let ((param (copy-ctbl:param ctbl:default-rendering-param)))
-        (ctbl:create-table-component-region
-         :param param
-         :width  nil
-         :height nil
-         :keymap keymap
-         :model
-         (make-ctbl:model
-          :data contents
-          :sort-state '(-1 2)
-          :column-model
-          (list (make-ctbl:cmodel
-                 :title "Date"
-                 :sorter 'ctbl:sort-string-lessp
-                 :min-width 10
-                 :align 'left)
-                (make-ctbl:cmodel
-                 :title "Category"
-                 :align 'left
-                 :sorter 'ctbl:sort-string-lessp)
-                (make-ctbl:cmodel
-                 :title "Title"
-                 :align 'left
-                 :min-width 40
-                 :max-width 140)
-                )))))
-    (define-key org-octopress-summary-mode-map "w" 'bb-org/hexo-org-new-open-post)
-
-    (defun org-octopress--scan-post ()
-      (mapcar
-       (lambda (filename)
-         (org-jekyll-property
-          '(:date
-            :jekyll-categories
-            :title
-            :input-file)
-          filename))
-       (directory-files
-        (expand-file-name
-         org-octopress-directory-org-posts) t "^.*\\.org$")))
-
-    (defun org-octopress (&optional title)
-      "Org-mode and Octopress."
-      (interactive)
-      (setq org-octopress-summary-buffer (get-buffer-create "Octopress"))
-      (switch-to-buffer org-octopress-summary-buffer)
-      (setq buffer-read-only nil)
-      (erase-buffer)
-      (insert (org-octopress--summary-header title))
-      (save-excursion
-        (setq org-octopress-component (org-octopress--summary-table
-                                       (org-octopress--scan-post) org-octopress-summary-mode-map)))
-      (ctbl:cp-add-click-hook
-       org-octopress-component
-       (lambda ()
-         (find-file (nth 3 (ctbl:cp-get-selected-data-row org-octopress-component)))))
-      (org-octopress-summary-mode)
-      (ctbl:navi-goto-cell
-       (ctbl:find-first-cell (ctbl:component-dest org-octopress-component)))
-      )
-
-    ;; rewrite in ox-jekyll.el
-    (defcustom org-jekyll-date ""
-      "Default date used in Jekyll article."
-      :group 'org-export-jekyll
-      :type 'string)
-    (org-export-define-derived-backend'jekyll 'html
-                                              :export-block '("HTML" "JEKYLL")
-                                              :menu-entry
-                                              '(?j "Jekyll: export to HTML with YAML front matter."
-                                                   ((?H "As HTML buffer" org-jekyll-export-as-html)
-                                                    (?h "As HTML file" org-jekyll-export-to-html)))
-                                              :translate-alist
-                                              '((template . org-jekyll-template) ;; add YAML front matter.
-                                                (src-block . org-jekyll-src-block)
-                                                (inner-template . org-jekyll-inner-template)) ;; force body-only
-                                              :options-alist
-                                              '((:jekyll-layout "LAYOUT" nil org-jekyll-layout)
-                                                (:jekyll-categories "CATEGORIES" nil org-jekyll-categories)
-                                                (:jekyll-tags "TAGS" nil org-jekyll-tags)
-                                                (:date "DATE" nil org-jekyll-date)
-                                                (:jekyll-published "PUBLISHED" nil org-jekyll-published)
-                                                (:jekyll-comments "COMMENTS" nil org-jekyll-comments)))
     ))
 
 (defun bb-org/init-uimage ()
